@@ -1,6 +1,11 @@
 <template>
     <el-container>
-        <el-header>Header</el-header>
+        <el-header>
+            <el-color-picker
+                v-model="theme"
+                class="theme-picker"
+                popper-class="theme-picker-dropdown"/>
+        </el-header>
         <el-container  id="home">
             <el-menu default-active="1-4-1" class="el-menu-vertical-demo"  :collapse="isCollapse" :unique-opened="true" background-color="#000000" text-color="#ffffff" :collapse-transition="true">
                 <el-submenu v-for="(data,key_0) in menuData2" :index="data.name" :key="key_0">
@@ -21,9 +26,14 @@
     </el-container>
 </template>
 <script>
+const version = require('element-ui/package.json').version // element-ui version from node_modules
+console.log(version)
+const ORIGINAL_THEME = '#409EFF' // default color
     export default {
         data() {
             return {
+                chalk: '',
+                theme:ORIGINAL_THEME,
                 isCollapse:false,
                 style:{
                     left:"200px"
@@ -63,6 +73,12 @@
                         },{
                             path:"/home/draw",
                             name:"画框"
+                        },{
+                            path:"/home/theme",
+                            name:"主题"
+                        },{
+                            path:"/home/draggable",
+                            name:"拖拽"
                         }]
                     }
                 ]
@@ -78,8 +94,132 @@
             openOrClose(){
                 this.isCollapse = !this.isCollapse;
                 this.style = this.isCollapse ? {left:"65px"} :{left:"200px"}
-            }
+            },
+            updateStyle(style, oldCluster, newCluster) {
+                   console.log(style);
+                   console.log(oldCluster);
+                   console.log(newCluster)
+             let newStyle = style
+             oldCluster.forEach((color, index) => {
+               newStyle = newStyle.replace(new RegExp(color, 'ig'), newCluster[index])
+             })
+
+             return newStyle
+
+           },
+
+           getCSSString(url, callback, variable) {
+             const xhr = new XMLHttpRequest()
+             xhr.onreadystatechange = () => {
+               if (xhr.readyState === 4 && xhr.status === 200) {
+                 this[variable] = xhr.responseText.replace(/@font-face{[^}]+}/, '')
+                 callback()
+               }
+             }
+             xhr.open('GET', url)
+             xhr.send()
+           },
+
+           getThemeCluster(theme) {
+             const tintColor = (color, tint) => {
+               let red = parseInt(color.slice(0, 2), 16)
+               let green = parseInt(color.slice(2, 4), 16)
+               let blue = parseInt(color.slice(4, 6), 16)
+
+               if (tint === 0) { // when primary color is in its rgb space
+                 return [red, green, blue].join(',')
+               } else {
+                 red += Math.round(tint * (255 - red))
+                 green += Math.round(tint * (255 - green))
+                 blue += Math.round(tint * (255 - blue))
+
+                 red = red.toString(16)
+                 green = green.toString(16)
+                 blue = blue.toString(16)
+
+                 return `#${red}${green}${blue}`
+               }
+             }
+
+             const shadeColor = (color, shade) => {
+               let red = parseInt(color.slice(0, 2), 16)
+               let green = parseInt(color.slice(2, 4), 16)
+               let blue = parseInt(color.slice(4, 6), 16)
+
+               red = Math.round((1 - shade) * red)
+               green = Math.round((1 - shade) * green)
+               blue = Math.round((1 - shade) * blue)
+
+               red = red.toString(16)
+               green = green.toString(16)
+               blue = blue.toString(16)
+
+               return `#${red}${green}${blue}`
+             }
+
+             const clusters = [theme]
+             for (let i = 0; i <= 9; i++) {
+               clusters.push(tintColor(theme, Number((i / 10).toFixed(2))))
+             }
+             clusters.push(shadeColor(theme, 0.1))
+             return clusters
+           }
         },
+        watch: {
+            theme(val, oldVal) {
+              // console.log(val)
+              if (typeof val !== 'string') return
+              const themeCluster = this.getThemeCluster(val.replace('#', ''))
+              // console.log(themeCluster)
+              const originalCluster = this.getThemeCluster(oldVal.replace('#', ''))
+              // console.log(themeCluster, originalCluster)
+              const getHandler = (variable, id) => {
+                return () => {
+                  const originalCluster = this.getThemeCluster(ORIGINAL_THEME.replace('#', ''))
+
+                  const newStyle = this.updateStyle(this[variable], originalCluster, themeCluster)
+
+                  let styleTag = document.getElementById(id);
+                  // console.log(styleTag)
+                  if (!styleTag) {
+                    styleTag = document.createElement('style')
+                    styleTag.setAttribute('id', id)
+                    document.head.appendChild(styleTag)
+                  }
+                  styleTag.innerText = newStyle
+                }
+              }
+
+              const chalkHandler = getHandler('chalk', 'chalk-style')
+
+              if (!this.chalk) {
+
+                const url = `https://unpkg.com/element-ui@${version}/lib/theme-chalk/index.css`;
+                this.getCSSString(url, chalkHandler, 'chalk')
+              } else {
+
+
+                chalkHandler()
+                console.log("1")
+                 console.log(this["chalk"]);
+              }
+
+              const styles = [].slice.call(document.querySelectorAll('style'))
+                .filter(style => {
+                  const text = style.innerText
+                  return new RegExp(oldVal, 'i').test(text) && !/Chalk Variables/.test(text)
+                })
+              styles.forEach(style => {
+                const { innerText } = style
+                if (typeof innerText !== 'string') return
+                style.innerText = this.updateStyle(innerText, originalCluster, themeCluster)
+              })
+              this.$message({
+                message: '换肤成功',
+                type: 'success'
+              })
+            }
+          },
     }
 </script>
 <style lang="css">

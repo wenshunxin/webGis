@@ -66,6 +66,15 @@ export default new Router({
                 path:"draw",
                 name:"draw",
                 component:resolve =>require(["@/components/home/draw"],resolve)
+            },
+            {
+                path:"theme",
+                name:"theme",
+                component:() => import('@/components/home/theme')
+            },{
+                path:"draggable",
+                name:"draggable",
+                component:()=>import("@/components/home/draggable")
             }
         ]
     },

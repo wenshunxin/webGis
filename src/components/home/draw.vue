@@ -6,7 +6,7 @@
 
 <script>
 import 'ol/ol.css'
-import {Map, View,Attribution} from 'ol';
+import {Map, View,Attribution,control} from 'ol';
 import {transform, toLonLat,fromLonLat} from 'ol/proj';
 import Feature from 'ol/Feature';
 import {LineString, Point, Polygon} from 'ol/geom';
@@ -16,7 +16,7 @@ import {XYZ, Vector as VectorSource} from 'ol/source';
 import {Icon, Style,Stroke,Circle,Fill,Text} from 'ol/style';
 import GeoJSON from 'ol/format/GeoJSON';
 import {click, pointerMove, altKeyOnly} from 'ol/events/condition';
-import {defaults as defaultControls, FullScreen} from 'ol/control';
+import {defaults as defaultControls, FullScreen,ScaleLine,Navigation,MousePosition} from 'ol/control';
 import Draw,{ createRegularPolygon, createBox } from 'ol/interaction/Draw';
 export default {
     data(){
@@ -41,11 +41,11 @@ export default {
                               url: "http://www.google.cn/maps/vt?lyrs=t@189&gl=cn&x={x}&y={y}&z={z}"
                         })
                     }),
-                    // new TileLayer({
-                    //     source: new XYZ({
-                    //           url: "http://t3.tianditu.com/DataServer?T=cva_w&x={x}&y={y}&l={z}"
-                    //     })
-                    // }),
+                    new TileLayer({
+                        source: new XYZ({
+                              url: "http://t3.tianditu.com/DataServer?T=cva_w&x={x}&y={y}&l={z}"
+                        })
+                    }),
                     new VectorLayer({
                         source: this.source,
                         style: new Style({
@@ -76,7 +76,11 @@ export default {
                     projection:"EPSG:4326"
                 })
             });
+            // this.map.addControl(new ScaleLine());
+            this.map.removeLayer(this.map.getLayers().arrary_)
+            // this.map.addControl(new MousePosition());//鼠标导航，包括平移放大缩小，触摸事件等
             this.handleDraw();
+            console.log(this.map.getLayers())
         },
         // 框选
         handleDraw(){
@@ -86,7 +90,6 @@ export default {
                 geometryFunction: new createBox()
             });
             this.map.addInteraction(this.draw);
-
             this.draw.on("drawend",(evt)=>{
                 this.map.removeInteraction(this.draw);
                 console.log(evt)

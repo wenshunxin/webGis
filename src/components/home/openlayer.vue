@@ -1,6 +1,7 @@
 <template lang="html">
     <div class="wrap">
         <div  id="map"></div>
+        <el-button @click="handleShowHide">显示/隐藏</el-button>
         <Select :searchList="options" @selectFunc="getChangeSelect" :style="style"></Select>
     </div>
 
@@ -27,6 +28,8 @@ import {platformModifierKeyOnly} from 'ol/events/condition';
 export default {
     data(){
         return {
+            isLayer:true,
+            layer:"",
             dragBox:"",
             map:"",
             draw:"",
@@ -126,14 +129,17 @@ export default {
                 layers: [
                     new TileLayer({
                         source: new XYZ({
-                              url: "http://www.google.cn/maps/vt?lyrs=t@189&gl=cn&x={x}&y={y}&z={z}"
+                              url: "http://www.google.cn/maps/vt?lyrs=t@189&gl=cn&x={x}&y={y}&z={z}",
+                              layers: 'basic',
+                              isBaseLayer: true,
+                              visibility: false,
                         })
                     }),
-                    new TileLayer({
-                        source: new XYZ({
-                              url: "http://t3.tianditu.com/DataServer?T=cva_w&x={x}&y={y}&l={z}"
-                        })
-                    }),
+                    // new TileLayer({
+                    //     source: new XYZ({
+                    //           url: "http://t3.tianditu.com/DataServer?T=cva_w&x={x}&y={y}&l={z}"
+                    //     })
+                    // }),
                     new VectorLayer({
                         source: this.source,
                         style: new Style({
@@ -172,6 +178,7 @@ export default {
                     projection:"EPSG:4326"
                 })
             });
+            this.layer = this.map.getLayers().array_[1];
             let _this = this;
             // this.map.getView().on("change:resolution",function(e){
             //     // console.log(_this.map.getView().getZoom());
@@ -214,6 +221,17 @@ export default {
               // dragBox.on('boxstart', function() {
               //   selectedFeatures.clear();
               // });
+            
+            //  this.map.removeLayer(this.map.getLayers().array_[1])
+
+            this.map.getView().on("change:resolution",function(e){
+                if(parseInt(this.map.getView().getZoom())<=4){
+                    alert("是否还需要显示");
+                    this.layer.setVisible( false);
+                }else{
+                    this.layer.setVisible(true);
+                }
+            }.bind(this));
         },
         getplygon(){
             for(var j=0;j<this.coordinates.length;j++){
@@ -323,6 +341,10 @@ export default {
             this.map.removeInteraction(this.draw)
             // console.log(value)
             this.mapClick(value)
+        },
+        handleShowHide(){
+            // this.isLayer = !this.isLayer;
+            this.layer.setVisible( this.isLayer = !this.isLayer);
         }
     }
 }
