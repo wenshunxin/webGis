@@ -5,6 +5,8 @@
                 v-model="theme"
                 class="theme-picker"
                 popper-class="theme-picker-dropdown"/>
+
+                <el-button @click="handleBtn">按钮</el-button>
         </el-header>
         <el-container  id="home">
             <el-menu default-active="1-4-1" class="el-menu-vertical-demo"  :collapse="isCollapse" :unique-opened="true" background-color="#000000" text-color="#ffffff" :collapse-transition="true">
@@ -20,14 +22,16 @@
                 <el-button @click="openOrClose" class="stretch-btn" :class="isCollapse?'el-icon-d-arrow-left':'el-icon-d-arrow-right'"></el-button>
             </el-menu>
             <el-main :style="style">
-                <router-view/>
+                <transition name="fade" mode="out-in">
+                    <router-view :key="key"/>
+                </transition>
             </el-main>
+
         </el-container>
     </el-container>
 </template>
 <script>
 const version = require('element-ui/package.json').version // element-ui version from node_modules
-console.log(version)
 const ORIGINAL_THEME = '#409EFF' // default color
     export default {
         data() {
@@ -36,8 +40,10 @@ const ORIGINAL_THEME = '#409EFF' // default color
                 theme:ORIGINAL_THEME,
                 isCollapse:false,
                 style:{
-                    left:"200px"
+                    left:"200px",
+                    right:"0"
                 },
+                width:"200px",
                 menuData1: [{
                     name: 'nav 1'
                 },{
@@ -79,15 +85,44 @@ const ORIGINAL_THEME = '#409EFF' // default color
                         },{
                             path:"/home/draggable",
                             name:"拖拽"
+                        },{
+                            path:"/home/editor",
+                            name:"编辑器"
+                        },{
+                            path:"/home/cropperjs",
+                            name:"裁剪"
+                        },{
+                            path:"/home/tree",
+                            name:"树"
                         }]
+                    },{
+                        name:"地图组件",
+                        icon:"map",
+                        children:[
+                            {
+                                path:"/home/ranging",
+                                name:"地图测距"
+                            },{
+                                path:"/home/emit-on",
+                                name:"中转站"
+                            }
+                        ]
                     }
                 ]
             }
         },
         computed:{
-
+            key() {
+                console.log(this.$route.name !== undefined? this.$route.name + +new Date(): this.$route + +new Date())
+                // 或者 :key="route.fullPath" 只要保证key唯一就可以了
+                return this.$route.name !== undefined? this.$route.name + +new Date(): this.$route + +new Date()
+            }
         },
         methods:{
+            handleBtn(){
+                this.width=this.width=="200px"?"0":"200px";
+                // this.style["right"]=this.style["right"]=="200px"?"0":"200px";
+            },
             jump(value){
                 this.$router.push(value)
             },
@@ -270,5 +305,19 @@ const ORIGINAL_THEME = '#409EFF' // default color
         top: 0;
         right: 0;
         bottom: 0;
+        background: #ccc;
+    }
+    .rightDiv{
+        position: absolute;
+        right:0;
+        /* width:200px; */
+        height:100%;
+        top:0;
+    }
+    .fade-enter-active, .fade-leave-active {
+      transition: opacity .3s;
+    }
+    .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+      opacity: 0;
     }
 </style>

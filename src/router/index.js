@@ -75,6 +75,24 @@ export default new Router({
                 path:"draggable",
                 name:"draggable",
                 component:()=>import("@/components/home/draggable")
+            },{
+                path:"editor",
+                name:"editor",
+                component:()=>import("@/components/home/editor")
+            },{
+                path:"cropperjs",
+                name:"cropperjs",
+                component:()=>import("@/components/home/cropperjs")
+            },{
+                path:"tree",
+                name:"tree",
+                component:()=>import("@/components/home/tree")
+            },{
+                path:"ranging",
+                component:()=>import("@/components/home/ranging")
+            },{
+                path:"emit-on",
+                component:()=>import("@/components/home/emit-on")
             }
         ]
     },

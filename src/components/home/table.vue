@@ -1,109 +1,194 @@
-<template>
-    <div>
-        <!-- 表格
-        <Select :searchList="options" @selectFunc="getChangeSelect"></Select>
-        <h1>{{count}}</h1>
-        <el-button type="primary" @click="add">增加</el-button> -->
+<template lang="html">
+    <div class="">
+        <div id="myCharts">
+
+        </div>
+
+        <page-module :page="page"/>
     </div>
 </template>
+
 <script>
-    import Select from "../components/select";
-    export default{
-        data(){
-            return {
-                options: [{
-                  value: '黄金糕',
-                  label: '黄金糕'
-                }, {
-                  value: '双皮奶',
-                  label: '双皮奶'
-                }, {
-                  value: '蚵仔煎',
-                  label: '蚵仔煎'
-                }, {
-                  value: '龙须面',
-                  label: '龙须面'
-                }, {
-                  value: '北京烤鸭',
-                  label: '北京烤鸭'
-              }],
-              data:{
-                  header:["客户名称","公司电话","移动电话","客户类型","所属行业","公司规模",
-                  "客户性质","单位性质","客户来源","公司地址","省份","城市","公司网址",
-                  "传真","邮编","邮件","QQ","关系等级","重要等级","投资来源","信用等级",
-                  "销售市场","开票单位","开票单位地址",
-                  "银行帐号","税号","开户银行","开票联系电话","联系人姓名",
-                  "联系电话","所属部门",
-                  "geom"],
-                  datas:[
-                      {
-                          geom:"Point(112 92)",
-                          信用等级:"一般",
-                          公司地址:"兰州市下徐家湾7号",
-                          公司电话:"0931-8321680",
-                          公司网址:"http://www.gsny.gov.cn",
-                          公司规模:"50人以下",
-                          关系等级:"一般",
-                          单位性质:"政府部门",
-                          城市:"兰州",
-                          客户名称:"甘肃省农业机械化技术推广总站",
-                          客户性质:"客户",
-                          客户来源:"主动开拓",
-                          客户类型:"潜在用户",
-                          所属行业:"农业",
-                          投资来源:"大陆",
-                          省份:"甘肃",
-                          移动电话:"13893667249",
-                          联系人姓名:"王博炜",
-                          联系电话:"0931-8321680",
-                          重要等级:"一般",
-                          销售市场:"内销"
-                      },
-                      {
-                          geom:"Point(112 92)",
-                          信用等级:"一般",
-                          公司地址:"兰州市下徐家湾7号",
-                          公司电话:"0931-8321680",
-                          公司网址:"http://www.gsny.gov.cn",
-                          公司规模:"50人以下",
-                          关系等级:"一般",
-                          单位性质:"政府部门",
-                          城市:"兰州",
-                          客户名称:"甘肃省农业机械化技术推广总站",
-                          客户性质:"客户",
-                          客户来源:"主动开拓",
-                          客户类型:"潜在用户",
-                          所属行业:"农业",
-                          投资来源:"大陆",
-                          省份:"甘肃",
-                          移动电话:"13893667249",
-                          联系人姓名:"王博炜",
-                          联系电话:"0931-8321680",
-                          重要等级:"一般",
-                          销售市场:"内销"
-                      }
-                  ]
-              }
-            }
-        },
-        components: {
-            Select
-        },
-        computed: {
-            count(){
-        	    return this.$store.state.count
-            }
-        },
-        mounted(){
-            console.log(this.data)
-        },
-        methods:{
-            getChangeSelect(value){
-                console.log(value)
+import echarts from "echarts";
+import pageModule from "@/components/components/page";
+export default {
+    data(){
+        return {
+            page:{
+
             },
-            add(){
-                this.$store.commit('increment');
+             posList:[
+                'left', 'right', 'top', 'bottom',
+                'inside',
+                'insideTop', 'insideLeft', 'insideRight', 'insideBottom',
+                'insideTopLeft', 'insideTopRight', 'insideBottomLeft', 'insideBottomRight'
+            ],
+            app:{
+                config:{
+                    rotate: 90,
+                    align: 'left',
+                    verticalAlign: 'middle',
+                    position: 'insideBottom',
+                    distance: 15,
+                    onChange: function () {
+                        var labelOption = {
+                            normal: {
+                                rotate: app.config.rotate,
+                                align: app.config.align,
+                                verticalAlign: app.config.verticalAlign,
+                                position: app.config.position,
+                                distance: app.config.distance
+                            }
+                        };
+                        myChart.setOption({
+                            series: [{
+                                label: labelOption
+                            }, {
+                                label: labelOption
+                            }, {
+                                label: labelOption
+                            }, {
+                                label: labelOption
+                            }]
+                        });
+                    }
+                },
+                configParameters :{
+
+                }
             }
         }
+    },
+    add(){
+        console.log("111")
+    },
+    components:{
+        pageModule
+    },
+    mounted(){
+        let _this = this;
+        let mayCharts = echarts.init(document.getElementById("myCharts"));
+        this.app.configParameters = {
+            rotate: {
+                min: -90,
+                max: 90
+            },
+            align: {
+                options: {
+                    left: 'left',
+                    center: 'center',
+                    right: 'right'
+                }
+            },
+            verticalAlign: {
+                options: {
+                    top: 'top',
+                    middle: 'middle',
+                    bottom: 'bottom'
+                }
+            },
+            position: {
+                options: echarts.util.reduce(this.posList, function (map, pos) {
+                    map[pos] = pos;
+                    return map;
+                }, {})
+            },
+            distance: {
+                min: 0,
+                max: 100
+            }
+        }
+        var labelOption = {
+            normal: {
+                show: true,
+                position: _this.app.config.position,
+                distance: _this.app.config.distance,
+                align: _this.app.config.align,
+                verticalAlign: _this.app.config.verticalAlign,
+                rotate: _this.app.config.rotate,
+                formatter: '{c}  {name|{a}}',
+                fontSize: 16,
+                rich: {
+                    name: {
+                        textBorderColor: '#fff'
+                    }
+                }
+            }
+        };
+
+        let option = {
+            color: ['#003366', '#006699', '#4cabce', '#e5323e'],
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            legend: {
+                data: ['Forest', 'Steppe', 'Desert', 'Wetland']
+            },
+            toolbox: {
+                show: true,
+                orient: 'vertical',
+                left: 'right',
+                top: 'center',
+                feature: {
+                    mark: {show: true},
+                    dataView: {show: true, readOnly: false},
+                    magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                    restore: {show: true},
+                    saveAsImage: {show: true}
+                }
+            },
+            calculable: true,
+            xAxis: [
+                {
+                    type: 'category',
+                    axisTick: {show: false},
+                    data: ['2012', '2013', '2014', '2015', '2016']
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value'
+                }
+            ],
+            series: [
+                {
+                    name: 'Forest',
+                    type: 'bar',
+                    barGap: 0,
+                    label: labelOption,
+                    data: [320, 332, 301, 334, 390]
+                },
+                {
+                    name: 'Steppe',
+                    type: 'bar',
+                    label: labelOption,
+                    data: [220, 182, 191, 234, 290]
+                },
+                {
+                    name: 'Desert',
+                    type: 'bar',
+                    label: labelOption,
+                    data: [150, 232, 201, 154, 190]
+                },
+                {
+                    name: 'Wetland',
+                    type: 'bar',
+                    label: labelOption,
+                    data: [98, 77, 101, 99, 40]
+                }
+            ]
+        };
+        mayCharts.setOption(option,true)
     }
+}
 </script>
+
+<style lang="css">
+    #myCharts{
+        width:600px;
+        height:400px;
+    }
+</style>

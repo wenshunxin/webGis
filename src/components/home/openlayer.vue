@@ -104,7 +104,8 @@ export default {
             return {
                 position:"absolute",
                 top:"30px",
-                right:"30px"
+                right:"30px",
+                url:"http://t3.tianditu.com/DataServer?T=img_w&x={x}&y={y}&l={z}"
             }
         }
     },
@@ -113,6 +114,7 @@ export default {
     },
     methods:{
         mapInit(){
+            let that = this;
             this.getplygon();
             this.getpoint();
             this.getline();
@@ -129,17 +131,19 @@ export default {
                 layers: [
                     new TileLayer({
                         source: new XYZ({
-                              url: "http://www.google.cn/maps/vt?lyrs=t@189&gl=cn&x={x}&y={y}&z={z}",
+                              url: "http://t3.tianditu.com/DataServer?T=img_w&x={x}&y={y}&l={z}",
                               layers: 'basic',
                               isBaseLayer: true,
-                              visibility: false,
-                        })
+                        }),
+                        // visible: false,
                     }),
-                    // new TileLayer({
-                    //     source: new XYZ({
-                    //           url: "http://t3.tianditu.com/DataServer?T=cva_w&x={x}&y={y}&l={z}"
-                    //     })
-                    // }),
+                    new TileLayer({
+                        source: new XYZ({
+                              url: "http://t3.tianditu.com/DataServer?T=cva_w&x={x}&y={y}&l={z}",
+
+                        }),
+                         visible: false,
+                    }),
                     new VectorLayer({
                         source: this.source,
                         style: new Style({
@@ -178,22 +182,26 @@ export default {
                     projection:"EPSG:4326"
                 })
             });
-            this.layer = this.map.getLayers().array_[1];
             let _this = this;
+            // _this.map.on("click",function(e){
+            //     console.log(e)
+            // });
+            // this.layer = this.map.getLayers().array_[1];
+
             // this.map.getView().on("change:resolution",function(e){
             //     // console.log(_this.map.getView().getZoom());
             // });
                 _this.select = new Sselect();
                 _this.map.addInteraction(_this.select);
-               //  _this.modify = new Modify({
-               //     features: _this.select.getFeatures()
-               //  });
-               // _this.map.addInteraction(_this.modify);
-               // _this.select.setActive(true);//激活选择要素控件
-               // _this.modify.setActive(true);//激活修改要素控件
-               // _this.modify.on("modifyend",(evt)=>{
-               //     console.log(evt)
-               // })
+                _this.modify = new Modify({
+                   features: _this.select.getFeatures()
+                });
+               _this.map.addInteraction(_this.modify);
+               _this.select.setActive(true);//激活选择要素控件
+               _this.modify.setActive(true);//激活修改要素控件
+               _this.modify.on("modifyend",(evt)=>{
+                   console.log(evt)
+               })
                _this.select.on("select",(evt)=>{
                    // console.log(_this.select.getFeatures())
                    // console.log(evt.target.getFeatures());
@@ -208,6 +216,7 @@ export default {
             });
             this.map.addInteraction(this.dragBox);
             this.dragBox.on('boxend', function() {
+                console.log(_this.dragBox)
                 var extent = _this.dragBox.getGeometry().getExtent();
                 _this.source.forEachFeatureIntersectingExtent(extent, function(feature) {
                   selectedFeatures.push(feature);
@@ -221,17 +230,19 @@ export default {
               // dragBox.on('boxstart', function() {
               //   selectedFeatures.clear();
               // });
-            
+
             //  this.map.removeLayer(this.map.getLayers().array_[1])
 
-            this.map.getView().on("change:resolution",function(e){
-                if(parseInt(this.map.getView().getZoom())<=4){
-                    alert("是否还需要显示");
-                    this.layer.setVisible( false);
-                }else{
-                    this.layer.setVisible(true);
-                }
-            }.bind(this));
+            // this.map.getView().on("change:resolution",function(e){
+            //     if(parseInt(this.map.getView().getZoom())<=4){
+            //         alert("是否还需要显示");
+            //         this.layer.setVisible( false);
+            //     }else{
+            //         this.layer.setVisible(true);
+            //     }
+            // }.bind(this));
+
+
         },
         getplygon(){
             for(var j=0;j<this.coordinates.length;j++){

@@ -14,13 +14,17 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "echarts": "^4.2.0-rc.2",
     "element-ui": "^2.4.6",
     "form-create": "^1.4.2",
     "node-sass": "^4.9.3",
+    "nprogress": "^0.2.0",
     "ol": "^5.1.3",
     "sass-loader": "^7.1.0",
     "vue": "^2.5.2",
     "vue-beauty": "^2.0.0-beta.19",
+    "vue-cropperjs": "^2.2.2",
+    "vue-quill-editor": "^3.0.6",
     "vue-router": "^3.0.1",
     "vuedraggable": "^2.16.0",
     "vuex": "^3.0.1"
